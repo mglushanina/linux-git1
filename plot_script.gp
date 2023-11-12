@@ -20,7 +20,9 @@ f(x) = a * x + b
 # Подгонка данных к модели
 fit f(x) datafile using 16:11 via a, b
 
-# Построение данных и линейной регрессии
-plot datafile using 16:11 with points title 'Данные', \
-     f(x) with lines title 'Линейная регрессия'
+# Построение данных
+plot datafile using 16:11 with points title 'Данные'
+
+# Построение линейной регрессии
+replot f(x) with lines title 'Линейная регрессия'
 
