@@ -13,3 +13,4 @@ awk -F, '/hilton|hilton/ && $(NF-6) != -1 {country=tolower($7); hilton_cleanline
               }
          }' /home/users/datasets/hotels.csv
 
+gnuplot plot_script.gp
