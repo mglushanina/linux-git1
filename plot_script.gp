@@ -1,28 +1,26 @@
-k# plot_script.gp
+# plot_script.gp
 
-# Установка формата сохраняемого изображения
-set terminal pngcairo enhanced font 'Verdana,12'
+# Set data file and separator
+set datafile separator ','
+
+# Define the function for the linear regression
+f(x) = m * x + b
+
+# Fit the data to the linear regression function
+fit f(x) '/home/mglushanina/linux-git1/tmp/hotels_filtered.csv' using 2:1 via m, b
+
+# Set plot title and labels
+set title 'Linear Regression: Cleanliness vs Overall Rating'
+set xlabel 'Overall Rating'
+set ylabel 'Cleanliness'
+
+# Plot the data points and the regression line
+plot '/home/mglushanina/linux-git1/tmp/hotels_filtered.csv' using 2:1 title 'Data Points' with points, \
+     f(x) title sprintf('Regression Line: y = %.2fx + %.2f', m, b) with lines
+
+# Save the plot as a PNG file
+set term pngcairo enhanced font 'Verdana,10'
 set output 'linear_regression_plot.png'
-
-# Заголовок графика
-set title 'Линейная регрессия: Чистота vs Общая оценка'
-
-# Названия осей
-set xlabel 'Общая оценка'
-set ylabel 'Чистота'
-
-# Чтение данных из файла CSV с фильтрацией -1 значений
-datafile = '/home/users/datasets/hotels.csv'
-# Используйте "," как разделитель данных
-set datafile separator ","
-# Определение модели линейной регрессии
-f(x) = a * x + b
-# Подгонка данных к модели с фильтрацией -1 значений
-fit f(x) datafile using 16:11:(($11 != -1 && $16 != -1) ? $16 : 1/0) via a, b
-
-# Построение данных
-plot datafile using 16:11 with points title 'Данные'
-
-# Построение линейной регрессии
-replot f(x) title 'Линейная регрессия'
+replot
+set output
 
