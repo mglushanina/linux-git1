@@ -1,0 +1,25 @@
+name: Python Script Push
+
+on:
+  push:
+    paths:
+      - '**/*.py'
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Create Issue
+        run: |
+          repo_name=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
+          user_name=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
+          
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/$user_name/$repo_name/issues \
+            -d '{"title":"Thanks for a Python script edit"}'
+
