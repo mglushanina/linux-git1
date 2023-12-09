@@ -1,0 +1,39 @@
+name: Countdown Tests and Linting
+
+on:
+  push:
+    branches:
+      - main  # Change this to your branch name
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3  # Specify your Python version here
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt  # Replace with your requirements file if needed
+
+      - name: Run tests
+        run: python test_countdown.py
+
+      - name: Run linters
+        run: python lint_countdown.py
+
+      - name: Create Issue with test and lint results
+        uses: peter-evans/create-issue-from-file@v2
+        with:
+          title: Test and Lint Results
+          content-filepath: |
+            test_results.txt
+            lint_results.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
