@@ -16,19 +16,19 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.x  # Specify your Python version here
+          python-version: 3.8  
 
       - name: Install dependencies
-        run: pip install -r requirements.txt  # Replace with your requirements file if needed
+        run: pip install -r project2/requirements.txt  
 
       - name: Run tests
         id: test
-        run: python test_countdown.py
+        run: python project2/test_countdown.py
         continue-on-error: true
 
       - name: Run linters
         id: lint
-        run: python lint_countdown.py
+        run: python project2/lint_countdown.py
         continue-on-error: true
 
       - name: Create Issue on Test Failure
