@@ -23,7 +23,7 @@ def main():
     time_left = time_until_new_year()
 
     # Выводим оставшееся время
-    print("До Нового года осталось: {}".format(time_left))
+    print("До Нового года осталось всего: {}".format(time_left))
 
 if __name__ == "__main__":
     main()
