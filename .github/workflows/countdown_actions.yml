@@ -3,7 +3,7 @@ name: Countdown Tests and Linting
 on:
   push:
     branches:
-      - main  # Change this to your branch name
+      - main
 
 jobs:
   build:
@@ -16,24 +16,98 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8  # Specify your Python version here
+          python-version: 3.x  # Specify your Python version here
 
       - name: Install dependencies
-        run: pip install -r project2/requirements.txt  # Replace with your requirements file if needed
+        run: pip install -r requirements.txt  # Replace with your requirements file if needed
 
       - name: Run tests
-        run: python project2/test_countdown.py
+        id: test
+        run: python test_countdown.py
+        continue-on-error: true
 
       - name: Run linters
-        run: python project2/lint_countdown.py
+        id: lint
+        run: python lint_countdown.py
+        continue-on-error: true
 
-      - name: Create Issue with test and lint results
-        uses: peter-evans/create-issue-from-file@v2
+      - name: Create Issue on Test Failure
+        if: steps.test.outcome != 'success'
+        uses: actions/github-script@v4
         with:
-          title: Test and Lint Results
-          content-filepath: |
-            project2/test_results.txt
-            project2/lint_results.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.create({
+              repo: context.repo.repo,
+              owner: context.repo.owner,
+              title: 'There is an error in test',
+              body: 'There was a failure in the test. Please check the logs for details.'
+            })
+
+      - name: Create Issue on Linter Failure
+        if: steps.lint.outcome != 'success'
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.create({
+              repo: context.repo.repo,
+              owner: context.repo.owner,
+              title: 'There is an error in linter',
+              body: 'There was a failure in the linter. Please check the logs for details.'
+            })
+name: Countdown Tests and Linting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8  
+
+      - name: Install dependencies
+        run: pip install -r project2/requirements.txt  
+
+      - name: Run tests
+        id: test
+        run: python project2/test_countdown.py
+        continue-on-error: true
+
+      - name: Run linters
+        id: lint
+        run: python project2/lint_countdown.py
+        continue-on-error: true
+
+      - name: Create Issue on Test Failure
+        if: steps.test.outcome != 'success'
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.create({
+              repo: context.repo.repo,
+              owner: context.repo.owner,
+              title: 'There is an error in test',
+              body: 'There was a failure in the test. Please check the logs for details.'
+            })
+
+      - name: Create Issue on Linter Failure
+        if: steps.lint.outcome != 'success'
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.create({
+              repo: context.repo.repo,
+              owner: context.repo.owner,
+              title: 'There is an error in linter',
+              body: 'There was a failure in the linter. Please check the logs for details.'
+            })
 
