@@ -16,10 +16,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8  
+          python-version: 3.x  # Specify your Python version here
 
       - name: Install dependencies
-        run: pip install -r project2/requirements.txt  # Replace with your requirements file if needed
+        run: pip install -r project2/requirements.txt  # Adjust path if needed
 
       - name: Run linters
         id: lint
@@ -27,7 +27,7 @@ jobs:
           lint_output=$(python project2/lint_countdown.py)
           if [[ $lint_output == *"F0001: No module named"* ]]; then
             echo "Linting failed due to module error"
-            exit 1
+            echo "::set-output name=lint_failed::true"
           fi
 
       - name: Run tests
@@ -36,11 +36,11 @@ jobs:
           test_output=$(python project2/test_countdown.py 2>&1)
           if [[ $test_output == *"FAILED (errors=1)"* ]]; then
             echo "Test failed"
-            exit 1
+            echo "::set-output name=test_failed::true"
           fi
 
       - name: Create Issue on Linter Failure
-        if: steps.lint.outcome != 'success'
+        if: steps.lint.outputs.lint_failed == 'true'
         uses: actions/github-script@v4
         with:
           script: |
@@ -48,11 +48,11 @@ jobs:
               repo: context.repo.repo,
               owner: context.repo.owner,
               title: 'Linting error: No module named',
-              body: 'Linting failed due to module error in countdown.py.'
+              body: 'Linting failed due to module error in project2/lint_countdown.py.'
             })
 
       - name: Create Issue on Test Failure
-        if: steps.test.outcome != 'success'
+        if: steps.test.outputs.test_failed == 'true'
         uses: actions/github-script@v4
         with:
           script: |
@@ -60,6 +60,6 @@ jobs:
               repo: context.repo.repo,
               owner: context.repo.owner,
               title: 'Test failure: errors=1',
-              body: 'Test failed with errors=1 in test_countdown.py.'
+              body: 'Test failed with errors=1 in project2/test_countdown.py.'
             })
 
