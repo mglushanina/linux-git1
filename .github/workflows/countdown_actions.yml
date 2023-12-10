@@ -16,32 +16,28 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8  
+          python-version: 3.x  # Specify your Python version here
 
       - name: Install dependencies
-        run: pip install -r project2/requirements.txt  
-
-      - name: Run tests
-        id: test
-        run: python project2/test_countdown.py
-        continue-on-error: true
+        run: pip install -r requirements.txt  # Replace with your requirements file if needed
 
       - name: Run linters
         id: lint
-        run: python project2/lint_countdown.py
-        continue-on-error: true
+        run: |
+          lint_output=$(python lint_countdown.py)
+          if [[ $lint_output == *"F0001: No module named"* ]]; then
+            echo "Linting failed due to module error"
+            exit 1
+          fi
 
-      - name: Create Issue on Test Failure
-        if: steps.test.outcome != 'success'
-        uses: actions/github-script@v4
-        with:
-          script: |
-            github.issues.create({
-              repo: context.repo.repo,
-              owner: context.repo.owner,
-              title: 'There is an error in test',
-              body: 'There was a failure in the test. Please check the logs for details.'
-            })
+      - name: Run tests
+        id: test
+        run: |
+          test_output=$(python test_countdown.py 2>&1)
+          if [[ $test_output == *"FAILED (errors=1)"* ]]; then
+            echo "Test failed"
+            exit 1
+          fi
 
       - name: Create Issue on Linter Failure
         if: steps.lint.outcome != 'success'
@@ -51,6 +47,19 @@ jobs:
             github.issues.create({
               repo: context.repo.repo,
               owner: context.repo.owner,
-              title: 'There is an error in linter',
-              body: 'There was a failure in the linter. Please check the logs for details.'
+              title: 'Linting error: No module named',
+              body: 'Linting failed due to module error in countdown.py.'
             })
+
+      - name: Create Issue on Test Failure
+        if: steps.test.outcome != 'success'
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.create({
+              repo: context.repo.repo,
+              owner: context.repo.owner,
+              title: 'Test failure: errors=1',
+              body: 'Test failed with errors=1 in test_countdown.py.'
+            })
+
